@@ -8,6 +8,8 @@ import requests
 
 import pandas as pd
 
+from multiprocessing import Pool
+
 
 BASE_URL = "http://www.trackitt.com/usa-immigration-trackers"
 URL_DATA_TABLE = os.path.join(BASE_URL, "i140", 'page', '%d')
@@ -85,3 +87,11 @@ def notes_from_application_id(application_id):
             .find("td", text=re.compile(r'Notes:'))
             .find_next_sibling("td")
             .text)
+
+
+def updated_notes(data):
+    """Return dictionary application_id: notes for all incomplete notes."""
+    p = Pool(10)
+    application_ids = application_ids_w_additional_notes(data)
+    notes = p.map(notes_from_application_id, application_ids)
+    return dict(zip(application_ids, notes)
