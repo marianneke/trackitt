@@ -60,12 +60,14 @@ def urls_from_trackitt_table_body(table_body_soup):
 def dataframe_from_trackitt_table(data_table_soup):
     """Return a dataframe with all case data from a bs4 table object."""
     header = data_table_soup.find('thead')
-    cols = ["ApplicationID"] + [col.text for col in header.find_all('font')]
+    cols = ["ApplicationID", "Data Snapshot Date"] + [
+        col.text for col in header.find_all('font')]
     body = data_table_soup.find('tbody')
-    # TODO: edit data using case's link
+    # TODO: edit notes using case's link
     data_rows = [
-        [row.find("a", {"title": "Discuss this case"})['href'].split('/')[-1]
-         ] + [field.text.strip() for field in row.find_all('td')]
+        [row.find("a", {"title": "Discuss this case"})['href'].split('/')[-1],
+         pd.Timestamp.today()] +
+        [field.text.strip() for field in row.find_all('td')]
         for row in body.find_all('tr')]
     return pd.DataFrame(data_rows, columns=cols)
 
